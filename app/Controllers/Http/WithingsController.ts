@@ -73,8 +73,8 @@ export default class WithingsController {
     }
   }
 
-  public async getMeasures({ request, response }: HttpContextContract) {
-    const token = request.input('token')
+  public async getMeasurements({ session, response }: HttpContextContract) {
+    const token = session.get('accessToken')
     const url = 'https://scalews.withings.com/measure'
     try {
       const headers = {
@@ -85,7 +85,7 @@ export default class WithingsController {
         action: 'getmeas',
       }
       const apiResponse = await axios.post(url, data, { headers })
-      return apiResponse.data
+      return apiResponse.data.body
     } catch (error) {
       response.status(500).send('Error fetching data from Withings API')
     }

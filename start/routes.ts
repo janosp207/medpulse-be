@@ -24,6 +24,6 @@ Route.get('/', async () => {
   return { hello: 'world' }
 })
 
-Route.post('/api/measure', 'WithingsController.getMeasures')
+Route.get('/api/measure', 'WithingsController.getMeasurements')
 Route.post('/api/storeAccessToken', 'WithingsController.storeAccessTokenByUserId')
 Route.get('/callback', 'WithingsController.callback')
