@@ -51,11 +51,25 @@ export default class WithingsController {
         })
       }
 
-      const customUrlScheme = 'bpios://oauth'
-      response.redirect(customUrlScheme)
+      return userid
     } catch (error) {
       console.error(error)
       response.status(500).send('Error fetching data from Withings API')
+    }
+  }
+
+  public async storeAccessTokenByUserId({ session, request, response }: HttpContextContract) {
+    const userId = request.input('userId')
+    const patient = await Patient.findBy('user_id', userId)
+
+    if (patient) {
+      const { access_token: accessToken, expires_at: expiresAt } = patient
+      session.put('accessToken', accessToken)
+      session.put('expiresAt', expiresAt)
+
+      return response.json({ body: { accessToken } })
+    } else {
+      response.status(404).send('Patient not found')
     }
   }
 

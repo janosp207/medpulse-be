@@ -25,4 +25,5 @@ Route.get('/', async () => {
 })
 
 Route.post('/api/measure', 'WithingsController.getMeasures')
+Route.post('/api/storeAccessToken', 'WithingsController.storeAccessTokenByUserId')
 Route.get('/callback', 'WithingsController.callback')
