@@ -1,6 +1,8 @@
 import Env from '@ioc:Adonis/Core/Env'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Patient from 'App/Models/Patient'
 import axios from 'axios'
+import { DateTime } from 'luxon'
 
 export default class WithingsController {
   public async callback({ request, response }: HttpContextContract) {
@@ -18,8 +20,36 @@ export default class WithingsController {
         grant_type: 'authorization_code',
         redirect_uri: 'http://localhost:3333/callback',
       }
+
       const apiResponse = await axios.post(url, data, { headers })
-      console.log(apiResponse.data)
+
+      const {
+        userid,
+        refresh_token: refreshToken,
+        access_token: accessToken,
+        expires_in: expiresIn,
+      } = apiResponse.data.body
+
+      const expiresAt = DateTime.now().plus({ seconds: expiresIn })
+
+      //check if user exists in database
+      const patient = await Patient.findBy('user_id', userid)
+
+      if (patient) {
+        //update patient
+        patient.refresh_token = refreshToken
+        patient.access_token = accessToken
+        patient.expires_at = expiresAt
+        await patient.save()
+      } else {
+        //create patient
+        await Patient.create({
+          user_id: userid,
+          refresh_token: refreshToken,
+          access_token: accessToken,
+          expires_at: expiresAt,
+        })
+      }
 
       const customUrlScheme = 'bpios://oauth'
       response.redirect(customUrlScheme)
