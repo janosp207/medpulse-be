@@ -1,9 +1,19 @@
 import Env from '@ioc:Adonis/Core/Env'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Patient from 'App/Models/Patient'
+import PatientActivity from 'App/Models/PatientActivity'
 import axios from 'axios'
 import { DateTime } from 'luxon'
 
+const convertDateTimeToTimestamp = (date: DateTime, daysToAdd = 0 as number) => {
+  const stringDate = date.toString()
+
+  const newDate = new Date(stringDate) // add 2 days to date
+  newDate.setDate(newDate.getDate())
+
+  const unixTimestamp = Math.floor(new Date(stringDate).getTime() / 1000 + daysToAdd * 86400)
+  return unixTimestamp
+}
 export default class WithingsController {
   public async callback({ request, response }: HttpContextContract) {
     const code = request.input('code')
@@ -65,6 +75,7 @@ export default class WithingsController {
     if (patient) {
       const { access_token: accessToken, expires_at: expiresAt } = patient
       session.put('accessToken', accessToken)
+      session.put('userid', userId)
       session.put('expiresAt', expiresAt)
 
       return response.json({ body: { accessToken } })
@@ -86,6 +97,63 @@ export default class WithingsController {
       }
       const apiResponse = await axios.post(url, data, { headers })
       return apiResponse.data.body
+    } catch (error) {
+      response.status(500).send('Error fetching data from Withings API')
+    }
+  }
+
+  public async syncActivity({ session, response }: HttpContextContract) {
+    const token = session.get('accessToken')
+    const userId = session.get('userid')
+    const url = 'https://wbsapi.withings.net/v2/measure'
+    let lastupdate = 0
+
+    //check for latest user activity
+    const latestActivity = await PatientActivity.query()
+      .where('patient_id', userId)
+      .orderBy('date', 'desc')
+      .first()
+
+    if (latestActivity) {
+      const { date } = latestActivity
+
+      lastupdate = convertDateTimeToTimestamp(date, 2)
+    }
+
+    try {
+      const headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Bearer ${token}`,
+      }
+      const data = {
+        action: 'getactivity',
+        lastupdate,
+      }
+
+      const apiResponse = await axios.post(url, data, { headers })
+      //check if there is new activity
+      if (apiResponse.data.body.activities.length > 0) {
+        // create new activities for user
+        const activities = apiResponse.data.body.activities.map((activity: any) => {
+          return {
+            patient_id: userId,
+            date: activity.date,
+            steps: activity.steps,
+            distance: activity.distance,
+            elevation: activity.elevation,
+            soft: activity.soft,
+            moderate: activity.moderate,
+            intense: activity.intense,
+            active: activity.active,
+            calories: activity.calories,
+            totalcalories: activity.totalcalories,
+          }
+        })
+
+        await PatientActivity.createMany(activities)
+      }
+
+      return response.status(200).send('Activity synced successfully')
     } catch (error) {
       response.status(500).send('Error fetching data from Withings API')
     }
