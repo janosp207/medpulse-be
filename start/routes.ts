@@ -30,3 +30,7 @@ Route.get('/api/measure', 'WithingsController.getMeasurements')
 
 //syncing routes
 Route.get('/api/sync/activity', 'WithingsController.syncActivity')
+
+//manual blood info logs
+Route.post('/api/bloodpressure', 'PatientsBloodPressuresController.store')
+Route.post('/api/bloodoxygen', 'PatientsBloodOxygensController.store')

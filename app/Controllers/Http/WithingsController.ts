@@ -117,7 +117,7 @@ export default class WithingsController {
     if (latestActivity) {
       const { date } = latestActivity
 
-      lastupdate = convertDateTimeToTimestamp(date, 2)
+      lastupdate = convertDateTimeToTimestamp(date, 1)
     }
 
     try {
@@ -127,11 +127,12 @@ export default class WithingsController {
       }
       const data = {
         action: 'getactivity',
-        lastupdate,
+        lastupdate: lastupdate,
       }
 
       const apiResponse = await axios.post(url, data, { headers })
       //check if there is new activity
+
       if (apiResponse.data.body.activities.length > 0) {
         // create new activities for user
         const activities = apiResponse.data.body.activities.map((activity: any) => {
@@ -153,6 +154,7 @@ export default class WithingsController {
         await PatientActivity.createMany(activities)
       }
 
+      console.log('Activity synced successfully')
       return response.status(200).send('Activity synced successfully')
     } catch (error) {
       response.status(500).send('Error fetching data from Withings API')
