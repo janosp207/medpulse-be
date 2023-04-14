@@ -117,7 +117,7 @@ export default class WithingsController {
     if (latestActivity) {
       const { date } = latestActivity
 
-      lastupdate = convertDateTimeToTimestamp(date, 1)
+      lastupdate = convertDateTimeToTimestamp(date)
     }
 
     try {
@@ -131,27 +131,27 @@ export default class WithingsController {
       }
 
       const apiResponse = await axios.post(url, data, { headers })
-      //check if there is new activity
 
       if (apiResponse.data.body.activities.length > 0) {
         // create new activities for user
-        const activities = apiResponse.data.body.activities.map((activity: any) => {
-          return {
-            patient_id: userId,
-            date: activity.date,
-            steps: activity.steps,
-            distance: activity.distance,
-            elevation: activity.elevation,
-            soft: activity.soft,
-            moderate: activity.moderate,
-            intense: activity.intense,
-            active: activity.active,
-            calories: activity.calories,
-            totalcalories: activity.totalcalories,
-          }
+        apiResponse.data.body.activities.forEach(async (activity: any) => {
+          await PatientActivity.updateOrCreate(
+            { patient_id: userId, date: activity.date },
+            {
+              patient_id: userId,
+              date: activity.date,
+              steps: activity.steps,
+              distance: activity.distance,
+              elevation: activity.elevation,
+              soft: activity.soft,
+              moderate: activity.moderate,
+              intense: activity.intense,
+              active: activity.active,
+              calories: activity.calories,
+              totalcalories: activity.totalcalories,
+            }
+          )
         })
-
-        await PatientActivity.createMany(activities)
       }
 
       console.log('Activity synced successfully')

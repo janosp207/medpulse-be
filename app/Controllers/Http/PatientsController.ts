@@ -2,6 +2,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import PatientActivity from 'App/Models/PatientActivity'
 import PatientsBloodOxygen from 'App/Models/PatientsBloodOxygen'
 import PatientsBloodPressure from 'App/Models/PatientsBloodPressure'
+const { DateTime } = require('luxon')
 
 export default class PatientsController {
   public async index({}: HttpContextContract) {
@@ -44,7 +45,7 @@ export default class PatientsController {
       steps: patientActivity?.steps,
       distance: patientActivity?.distance,
       calories: patientActivity?.calories,
-      createdAt: patientActivity?.date,
+      createdAt: new DateTime(patientActivity?.date),
     }
 
     const bloodPressureResponse = await PatientsBloodPressure.query()
