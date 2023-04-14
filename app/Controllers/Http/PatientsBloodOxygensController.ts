@@ -19,7 +19,12 @@ export default class PatientsBloodOxygensController {
       bloodOxygen,
     })
 
-    return response.status(200).json(bloodPressure)
+    const responseData = {
+      bloodOxygen: bloodPressure.bloodOxygen,
+      createdAt: bloodPressure.createdAt,
+    }
+
+    return response.status(200).json({ body: responseData })
   }
 
   public async show({}: HttpContextContract) {

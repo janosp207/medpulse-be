@@ -19,7 +19,13 @@ export default class PatientsBloodPressuresController {
       diastolic,
     })
 
-    return response.status(200).json(bloodPressure)
+    const responseData = {
+      systolic: bloodPressure.systolic,
+      diastolic: bloodPressure.diastolic,
+      createdAt: bloodPressure.createdAt,
+    }
+
+    return response.status(200).json({ body: responseData })
   }
 
   public async show({}: HttpContextContract) {
