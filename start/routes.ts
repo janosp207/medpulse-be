@@ -39,4 +39,4 @@ Route.post('/api/bloodoxygen', 'PatientsBloodOxygensController.store')
 Route.get('/api/latestdata', 'PatientsController.getLatestData')
 
 //doctors
-Route.post('/api/doctor/patients', 'PatientsController.store')
+Route.get('/api/doctor/patients', 'PatientsController.index')
