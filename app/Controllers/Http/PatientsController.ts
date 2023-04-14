@@ -1,12 +1,20 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Patient from 'App/Models/Patient'
 import PatientActivity from 'App/Models/PatientActivity'
 import PatientsBloodOxygen from 'App/Models/PatientsBloodOxygen'
 import PatientsBloodPressure from 'App/Models/PatientsBloodPressure'
 const { DateTime } = require('luxon')
 
 export default class PatientsController {
-  public async index({}: HttpContextContract) {
-    return 'Hello World!'
+  public async index({ response }: HttpContextContract) {
+    //return all patients
+    const patients = await Patient.all()
+
+    return response.status(200).json({
+      body: {
+        patients,
+      },
+    })
   }
 
   public async create({}: HttpContextContract) {
