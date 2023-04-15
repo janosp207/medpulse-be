@@ -1,9 +1,16 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Patient from 'App/Models/Patient'
 import PatientActivity from 'App/Models/PatientActivity'
+import PatientMeasurement from 'App/Models/PatientMeasurement'
 import PatientsBloodOxygen from 'App/Models/PatientsBloodOxygen'
 import PatientsBloodPressure from 'App/Models/PatientsBloodPressure'
 const { DateTime } = require('luxon')
+
+enum MeasurementType {
+  Weight = 1,
+  Height = 4,
+  FatRatio = 6,
+}
 
 export default class PatientsController {
   public async index({ response }: HttpContextContract) {
@@ -87,11 +94,43 @@ export default class PatientsController {
       createdAt: bloodOxygenResponse?.createdAt,
     }
 
+    //get latest weight but only date and value
+
+    const latestWeight = await PatientMeasurement.query()
+      .select('value', 'date')
+      .where('patient_id', userId)
+      .where('type', MeasurementType.Weight)
+      .orderBy('created_at', 'desc')
+      .first()
+
+    const latestHeight = await PatientMeasurement.query()
+      .select('value')
+      .where('patient_id', userId)
+      .where('type', MeasurementType.Height)
+      .orderBy('created_at', 'desc')
+      .first()
+
+    //calculate BMI
+    let bmi = 0
+    if (latestWeight && latestHeight) {
+      bmi = parseFloat((latestWeight.value / latestHeight.value ** 2).toFixed(2))
+    }
+
+    const latestFatRatio = await PatientMeasurement.query()
+      .select('value', 'date')
+      .where('patient_id', userId)
+      .where('type', MeasurementType.FatRatio)
+      .orderBy('created_at', 'desc')
+      .first()
+
     return response.status(200).json({
       body: {
         latestActivity,
         latestBloodPressure,
         latestBloodOxygen,
+        latestWeight,
+        latestFatRatio,
+        bmi,
       },
     })
   }
