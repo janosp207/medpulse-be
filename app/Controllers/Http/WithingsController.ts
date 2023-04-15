@@ -2,8 +2,15 @@ import Env from '@ioc:Adonis/Core/Env'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Patient from 'App/Models/Patient'
 import PatientActivity from 'App/Models/PatientActivity'
+import PatientMeasurement from 'App/Models/PatientMeasurement'
 import axios from 'axios'
 import { DateTime } from 'luxon'
+
+enum MeasurementType {
+  Weight = 1,
+  Height = 4,
+  FatRatio = 6,
+}
 
 const convertDateTimeToTimestamp = (date: DateTime, daysToAdd = 0 as number) => {
   const stringDate = date.toString()
@@ -84,24 +91,6 @@ export default class WithingsController {
     }
   }
 
-  public async getMeasurements({ session, response }: HttpContextContract) {
-    const token = session.get('accessToken')
-    const url = 'https://scalews.withings.com/measure'
-    try {
-      const headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Bearer ${token}`,
-      }
-      const data = {
-        action: 'getmeas',
-      }
-      const apiResponse = await axios.post(url, data, { headers })
-      return apiResponse.data.body
-    } catch (error) {
-      response.status(500).send('Error fetching data from Withings API')
-    }
-  }
-
   public async syncActivity({ session, response }: HttpContextContract) {
     const token = session.get('accessToken')
     const userId = session.get('userid')
@@ -151,6 +140,51 @@ export default class WithingsController {
               totalcalories: activity.totalcalories,
             }
           )
+        })
+      }
+
+      //sync measurements
+      const measureUrl = 'https://wbsapi.withings.net/measure'
+      lastupdate = 0
+
+      const latestWeightMeasurement = await PatientMeasurement.query()
+        .where('patient_id', userId)
+        .orderBy('date', 'desc')
+        .first()
+
+      if (latestWeightMeasurement) {
+        const { date } = latestWeightMeasurement
+
+        lastupdate = date
+      }
+
+      const measurementData = {
+        action: 'getmeas',
+        lastupdate: lastupdate,
+        meastypes: `${MeasurementType.Weight},${MeasurementType.Height},${MeasurementType.FatRatio}`,
+      }
+
+      const measurementResponse = await axios.post(measureUrl, measurementData, { headers })
+      const measurements = measurementResponse.data.body.measuregrps
+
+      if (measurements.length > 0) {
+        // create new measurements for user
+        measurements.forEach(async (measurement: any) => {
+          const { date, measures } = measurement
+
+          measures.forEach(async (measure: any) => {
+            const { value, type, unit } = measure
+
+            await PatientMeasurement.updateOrCreate(
+              { patient_id: userId, date: date, type: type },
+              {
+                patient_id: userId,
+                date: date,
+                type: type,
+                value: value * Math.pow(10, unit),
+              }
+            )
+          })
         })
       }
 
