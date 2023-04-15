@@ -8,7 +8,7 @@ const { DateTime } = require('luxon')
 export default class PatientsController {
   public async index({ response }: HttpContextContract) {
     //return id and name of all patients
-    const patients = await Patient.query().select('user_id')
+    const patients = await Patient.query().select('user_id', 'name', 'date_of_birth')
 
     return response.status(200).json(patients)
   }
