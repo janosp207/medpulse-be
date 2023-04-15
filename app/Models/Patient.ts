@@ -6,6 +6,12 @@ export default class Patient extends BaseModel {
   public user_id: number
 
   @column()
+  public name: string
+
+  @column()
+  public date_of_birth: DateTime
+
+  @column()
   public refresh_token: string
 
   @column()

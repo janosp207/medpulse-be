@@ -40,3 +40,5 @@ Route.get('/api/latestdata', 'PatientsController.getLatestData')
 
 //doctors
 Route.get('/api/doctor/patients', 'PatientsController.index')
+Route.get('/api/patients/:id/latestdata', 'PatientsController.getLatestData')
+Route.get('/api/patients/:id', 'PatientsController.show')

@@ -21,8 +21,18 @@ export default class PatientsController {
     return 'Hello World!'
   }
 
-  public async show({}: HttpContextContract) {
-    return 'Hello World!'
+  public async show({ request, response }: HttpContextContract) {
+    // only get name and id of patient
+    try {
+      const patient = await Patient.query()
+        .select('user_id', 'name', 'date_of_birth')
+        .where('user_id', request.param('id'))
+        .first()
+
+      return response.status(200).json(patient)
+    } catch (error) {
+      return response.status(400).json({ message: 'Patient not found' })
+    }
   }
 
   public async edit({}: HttpContextContract) {
@@ -37,7 +47,11 @@ export default class PatientsController {
     return 'Hello World!'
   }
 
-  public async getLatestData({ session, response }: HttpContextContract) {
+  public async getLatestData({ session, request, response }: HttpContextContract) {
+    if (request.param('id')) {
+      session.put('userid', request.param('id'))
+    }
+
     //get last data from patients_activity
     const userId = session.get('userid')
     const patientActivity = await PatientActivity.query()
