@@ -181,7 +181,7 @@ export default class WithingsController {
                 patient_id: userId,
                 date: date,
                 type: type,
-                value: value * Math.pow(10, unit),
+                value: parseFloat((value * Math.pow(10, unit)).toFixed(2)),
               }
             )
           })
