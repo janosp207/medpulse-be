@@ -100,14 +100,14 @@ export default class PatientsController {
       .select('value', 'date')
       .where('patient_id', userId)
       .where('type', MeasurementType.Weight)
-      .orderBy('created_at', 'desc')
+      .orderBy('date', 'desc')
       .first()
 
     const latestHeight = await PatientMeasurement.query()
       .select('value')
       .where('patient_id', userId)
       .where('type', MeasurementType.Height)
-      .orderBy('created_at', 'desc')
+      .orderBy('date', 'desc')
       .first()
 
     //calculate BMI
@@ -120,7 +120,7 @@ export default class PatientsController {
       .select('value', 'date')
       .where('patient_id', userId)
       .where('type', MeasurementType.FatRatio)
-      .orderBy('created_at', 'desc')
+      .orderBy('date', 'desc')
       .first()
 
     return response.status(200).json({
