@@ -62,6 +62,7 @@ export default class PatientsController {
     //get last data from patients_activity
     const userId = session.get('userid')
     const patientActivity = await PatientActivity.query()
+      .select('steps', 'distance', 'calories', 'date')
       .where('patient_id', userId)
       .orderBy('date', 'desc')
       .first()
@@ -70,7 +71,7 @@ export default class PatientsController {
       steps: patientActivity?.steps,
       distance: patientActivity?.distance,
       calories: patientActivity?.calories,
-      createdAt: new DateTime(patientActivity?.date),
+      createdAt: patientActivity?.date,
     }
 
     const bloodPressureResponse = await PatientsBloodPressure.query()
