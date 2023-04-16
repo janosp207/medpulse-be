@@ -7,17 +7,19 @@ export default class PatientsMeasurementsController {
       session.put('userid', request.param('id'))
     }
 
-    const type = request.param('type')
+    const type = request.param('type').split(',')
     const patientId = session.get('userid')
 
     if (patientId) {
-      const weightData = await PatientMeasurement.query()
-        .select('value', 'date')
+      //handle request with mulitple types separated by a comma
+
+      const measurementData = await PatientMeasurement.query()
+        .select('value', 'date', 'type')
         .where('patient_id', patientId)
-        .where('type', type)
+        .whereIn('type', type)
         .orderBy('date', 'asc')
 
-      return response.status(200).json(weightData)
+      return response.status(200).json(measurementData)
     }
   }
 
