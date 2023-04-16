@@ -18,16 +18,16 @@ export default class PatientLimit extends BaseModel {
   public bmi: number
 
   @column()
-  public diastolicBloodPressureMax: number
+  public diastolicMax: number
 
   @column()
-  public diastolicBloodPressureMin: number
+  public diastolicMin: number
 
   @column()
-  public systolicBloodPressureMax: number
+  public systolicMax: number
 
   @column()
-  public systolicBloodPressureMin: number
+  public systolicMin: number
 
   @column()
   public bloodOxygenMax: number
@@ -36,7 +36,7 @@ export default class PatientLimit extends BaseModel {
   public bloodOxygenMin: number
 
   @column()
-  public sleepDurationMax: number
+  public sleepDurationMin: number
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

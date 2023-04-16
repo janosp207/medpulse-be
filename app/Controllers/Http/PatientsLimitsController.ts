@@ -2,6 +2,24 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import PatientLimit from 'App/Models/PatientLimit'
 
 export default class PatientsBloodPressuresController {
+  public async index({ session, request, response }: HttpContextContract) {
+    if (request.param('id')) {
+      session.put('userid', request.param('id'))
+    }
+
+    const patientId = session.get('userid')
+
+    if (patientId) {
+      const limitValues = await PatientLimit.findBy('patient_id', patientId)
+
+      if (limitValues) {
+        return response.status(200).json(limitValues)
+      }
+    }
+
+    return response.status(200).json({})
+  }
+
   public async store({ session, request, response }: HttpContextContract) {
     if (request.param('id')) {
       session.put('userid', request.param('id'))
@@ -25,9 +43,5 @@ export default class PatientsBloodPressuresController {
     }
 
     return response.status(200).json({ message: 'Patient limit updated' })
-  }
-
-  public async show({}: HttpContextContract) {
-    return 'Hello World!'
   }
 }

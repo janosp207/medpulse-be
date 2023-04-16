@@ -13,15 +13,15 @@ export default class extends BaseSchema {
         .inTable('patients')
         .onDelete('CASCADE')
       table.float('weight').nullable()
-      table.float('fatRatio').nullable()
+      table.float('fat_ratio').nullable()
       table.float('bmi').nullable()
-      table.integer('diastolic_blood_pressure_max').nullable()
-      table.integer('diastolic_blood_pressure_min').nullable()
-      table.integer('systolic_blood_pressure_max').nullable()
-      table.integer('systolic_blood_pressure_min').nullable()
+      table.integer('diastolic_max').nullable()
+      table.integer('diastolic_min').nullable()
+      table.integer('systolic_max').nullable()
+      table.integer('systolic_min').nullable()
       table.float('blood_oxygen_max').nullable()
       table.float('blood_oxygen_min').nullable()
-      table.float('sleep_duration_max').nullable()
+      table.float('sleep_duration_min').nullable()
 
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
