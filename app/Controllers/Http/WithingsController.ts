@@ -5,12 +5,7 @@ import PatientActivity from 'App/Models/PatientActivity'
 import PatientMeasurement from 'App/Models/PatientMeasurement'
 import axios from 'axios'
 import { DateTime } from 'luxon'
-
-enum MeasurementType {
-  Weight = 1,
-  Height = 4,
-  FatRatio = 6,
-}
+import { MeasurementType } from 'App/enums'
 
 const convertDateTimeToTimestamp = (date: DateTime, daysToAdd = 0 as number) => {
   const stringDate = date.toString()

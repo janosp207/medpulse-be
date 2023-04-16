@@ -41,3 +41,5 @@ Route.get('/api/latestdata', 'PatientsController.getLatestData')
 Route.get('/api/patients', 'PatientsController.index')
 Route.get('/api/patients/:id/latestdata', 'PatientsController.getLatestData')
 Route.get('/api/patients/:id', 'PatientsController.show')
+
+Route.get('/api/patients/:id/weight', 'PatientsWeightsController.index')

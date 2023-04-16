@@ -4,13 +4,7 @@ import PatientActivity from 'App/Models/PatientActivity'
 import PatientMeasurement from 'App/Models/PatientMeasurement'
 import PatientsBloodOxygen from 'App/Models/PatientsBloodOxygen'
 import PatientsBloodPressure from 'App/Models/PatientsBloodPressure'
-const { DateTime } = require('luxon')
-
-enum MeasurementType {
-  Weight = 1,
-  Height = 4,
-  FatRatio = 6,
-}
+import { MeasurementType } from 'App/enums'
 
 export default class PatientsController {
   public async index({ response }: HttpContextContract) {
