@@ -1,6 +1,12 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import PatientMeasurement from 'App/Models/PatientMeasurement'
 
+const MeasurementsDataTypes = {
+  1: 'weightData',
+  4: 'heightData',
+  6: 'fatRatioData',
+}
+
 export default class PatientsMeasurementsController {
   public async index({ session, request, response }: HttpContextContract) {
     if (request.param('id')) {
@@ -19,7 +25,17 @@ export default class PatientsMeasurementsController {
         .whereIn('type', type)
         .orderBy('date', 'asc')
 
-      return response.status(200).json(measurementData)
+      //group the data by type but use MeasurementsDataTypes as keys to group by
+      const groupedData = measurementData.reduce((acc, curr) => {
+        const key = MeasurementsDataTypes[curr.type]
+        if (!acc[key]) {
+          acc[key] = []
+        }
+        acc[key].push(curr)
+        return acc
+      }, {})
+
+      return response.status(200).json(groupedData)
     }
   }
 
