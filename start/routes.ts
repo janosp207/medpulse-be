@@ -41,5 +41,6 @@ Route.get('/api/latestdata', 'PatientsController.getLatestData')
 Route.get('/api/patients', 'PatientsController.index')
 Route.get('/api/patients/:id/latestdata', 'PatientsController.getLatestData')
 Route.get('/api/patients/:id', 'PatientsController.show')
+Route.post('/api/patients/:id/limits', 'PatientsLimitsController.store')
 
 Route.get('/api/patients/:id/measurements/:type', 'PatientsMeasurementsController.index')
