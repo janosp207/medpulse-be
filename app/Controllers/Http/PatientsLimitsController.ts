@@ -12,8 +12,21 @@ export default class PatientsBloodPressuresController {
     if (patientId) {
       const limitValues = await PatientLimit.findBy('patient_id', patientId)
 
+      const responseData = {
+        weight: limitValues?.weight,
+        fatRatio: limitValues?.fatRatio,
+        bmi: limitValues?.bmi,
+        diastolicMax: limitValues?.diastolicMax,
+        diastolicMin: limitValues?.diastolicMin,
+        systolicMax: limitValues?.systolicMax,
+        systolicMin: limitValues?.systolicMin,
+        bloodOxygenMax: limitValues?.bloodOxygenMax,
+        bloodOxygenMin: limitValues?.bloodOxygenMin,
+        sleepDurationMin: limitValues?.sleepDurationMin,
+      }
+
       if (limitValues) {
-        return response.status(200).json(limitValues)
+        return response.status(200).json(responseData)
       }
     }
 
