@@ -3,9 +3,12 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Patient from 'App/Models/Patient'
 import PatientActivity from 'App/Models/PatientActivity'
 import PatientMeasurement from 'App/Models/PatientMeasurement'
+import PatientSleepHeartRate from 'App/Models/PatientSleepHeartRate'
+import PatientSleepLog from 'App/Models/PatientSleepLog'
+import PatientSleepState from 'App/Models/PatientSleepState'
+import { MeasurementType } from 'App/enums'
 import axios from 'axios'
 import { DateTime } from 'luxon'
-import { MeasurementType } from 'App/enums'
 
 const convertDateTimeToTimestamp = (date: DateTime, daysToAdd = 0 as number) => {
   const stringDate = date.toString()
@@ -15,6 +18,16 @@ const convertDateTimeToTimestamp = (date: DateTime, daysToAdd = 0 as number) => 
 
   const unixTimestamp = Math.floor(new Date(stringDate).getTime() / 1000 + daysToAdd * 86400)
   return unixTimestamp
+}
+
+const getSleepTimeStamps = () => {
+  //get yesterdays date at 8 PM
+  const startdate = DateTime.now().minus({ days: 1 }).set({ hour: 18, minute: 0, second: 0 })
+  const enddate = DateTime.now().set({ hour: 17, minute: 0, second: 0 })
+  return {
+    startdate: convertDateTimeToTimestamp(startdate),
+    enddate: convertDateTimeToTimestamp(enddate),
+  }
 }
 export default class WithingsController {
   public async callback({ request, response }: HttpContextContract) {
@@ -180,6 +193,69 @@ export default class WithingsController {
               }
             )
           })
+        })
+      }
+
+      const { startdate, enddate } = getSleepTimeStamps()
+
+      const sleepRequestUrl = 'https://wbsapi.withings.net/v2/sleep'
+      //heart rate fetching
+      const sleepStatesData = {
+        action: 'get',
+        data_fields: 'hr',
+        startdate: startdate,
+        enddate: enddate,
+      }
+      const sleepResponseData: any[] = []
+
+      while (startdate < enddate) {
+        const sleepResponse = await axios.post(sleepRequestUrl, sleepStatesData, { headers })
+        if (sleepResponse.data.body.series.length === 0) {
+          break
+        }
+        sleepResponseData.push(...sleepResponse.data.body.series)
+
+        sleepStatesData.startdate =
+          sleepResponse.data.body.series[sleepResponse.data.body.series.length - 1].enddate
+      }
+
+      //create sleep log, use starttime of first sleep state as date and endtime of last sleep state as enddate from sleepresponsedata
+      const sleepLog = await PatientSleepLog.updateOrCreate(
+        { patientId: userId, startdate: sleepResponseData[0].startdate },
+        {
+          patientId: userId,
+          startdate: sleepResponseData[0].startdate,
+          enddate: sleepResponseData[sleepResponseData.length - 1].enddate,
+        }
+      )
+
+      if (sleepResponseData.length > 0) {
+        // create new measurements for user
+        sleepResponseData.forEach(async (sleep: any) => {
+          const { startdate, enddate, state, hr } = sleep
+
+          const createdSleepState = await PatientSleepState.updateOrCreate(
+            { sleepId: sleepLog.id, startdate: startdate, enddate: enddate },
+            {
+              sleepId: sleepLog.id,
+              startdate: startdate,
+              enddate: enddate,
+              state: state,
+            }
+          )
+
+          if (hr) {
+            Object.keys(hr).forEach(async (timestamp: any) => {
+              await PatientSleepHeartRate.updateOrCreate(
+                { sleepStateId: createdSleepState.id, timestamp: timestamp },
+                {
+                  sleepStateId: createdSleepState.id,
+                  timestamp: timestamp,
+                  hr: hr[timestamp],
+                }
+              )
+            })
+          }
         })
       }
 
