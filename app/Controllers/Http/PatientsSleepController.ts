@@ -1,7 +1,6 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Database from '@ioc:Adonis/Lucid/Database'
 import PatientSleepLog from 'App/Models/PatientSleepLog'
-import PatientSleepState from 'App/Models/PatientSleepState'
-
 export default class PatientsBloodOxygensController {
   public async index({ session, request, response }: HttpContextContract) {
     if (request.param('id')) {
@@ -45,11 +44,23 @@ export default class PatientsBloodOxygensController {
     }
 
     if (patientId && sleepLogId) {
-      const sleepStates = await PatientSleepState.query()
-        .where('sleep_id', sleepLogId)
-        .orderBy('startdate', 'desc')
+      const sleepStates = await Database.rawQuery(
+        `
+  SELECT
+    patient_sleep_states.*,
+    (
+      SELECT COALESCE(json_agg(json_build_object('hr', hr, 'timestamp', timestamp)), '[]'::json)
+      FROM patient_sleep_heart_rates 
+      WHERE sleep_state_id = patient_sleep_states.id
+    ) AS heart_rates
+  FROM patient_sleep_states
+  WHERE sleep_id = ?
+  ORDER BY startdate ASC;
+`,
+        [sleepLogId]
+      )
 
-      return response.status(200).json(sleepStates)
+      return response.status(200).json(sleepStates.rows)
     }
   }
 
