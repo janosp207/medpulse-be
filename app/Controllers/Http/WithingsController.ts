@@ -235,7 +235,7 @@ export default class WithingsController {
           const { startdate, enddate, state, hr } = sleep
 
           const createdSleepState = await PatientSleepState.updateOrCreate(
-            { sleepId: sleepLog.id, startdate: startdate, enddate: enddate },
+            { sleepId: sleepLog.id, startdate: startdate },
             {
               sleepId: sleepLog.id,
               startdate: startdate,
