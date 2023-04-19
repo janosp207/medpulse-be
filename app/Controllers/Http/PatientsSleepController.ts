@@ -17,7 +17,7 @@ export default class PatientsBloodOxygensController {
       //get all sleep logs for user
       const sleepLogs = await PatientSleepLog.query()
         .where('patient_id', patientId)
-        .orderBy('startdate', 'desc')
+        .orderBy('startdate', 'asc')
 
       return response.status(200).json(sleepLogs)
     }

@@ -23,7 +23,7 @@ const convertDateTimeToTimestamp = (date: DateTime, daysToAdd = 0 as number) => 
 const getSleepTimeStamps = () => {
   //get yesterdays date at 8 PM
   const startdate = DateTime.now().minus({ days: 1 }).set({ hour: 18, minute: 0, second: 0 })
-  const enddate = DateTime.now().set({ hour: 17, minute: 0, second: 0 })
+  const enddate = DateTime.now().set({ hour: 14, minute: 0, second: 0 })
   return {
     startdate: convertDateTimeToTimestamp(startdate),
     enddate: convertDateTimeToTimestamp(enddate),
