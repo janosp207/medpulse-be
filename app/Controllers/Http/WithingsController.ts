@@ -6,6 +6,7 @@ import PatientMeasurement from 'App/Models/PatientMeasurement'
 import PatientSleepHeartRate from 'App/Models/PatientSleepHeartRate'
 import PatientSleepLog from 'App/Models/PatientSleepLog'
 import PatientSleepState from 'App/Models/PatientSleepState'
+import PatientSleepSummary from 'App/Models/PatientSleepSummary'
 import { MeasurementType } from 'App/enums'
 import axios from 'axios'
 import { DateTime } from 'luxon'
@@ -256,6 +257,65 @@ export default class WithingsController {
               )
             })
           }
+        })
+      }
+
+      let latestSleepSummary = await PatientSleepSummary.query()
+        .where('patient_id', userId)
+        .orderBy('startdate', 'desc')
+        .first()
+
+      if (latestSleepSummary) {
+        const { startdate } = latestSleepSummary
+
+        lastupdate = startdate
+      }
+
+      //sync sleep summaries
+      const sleepSummaryData = {
+        action: 'getsummary',
+        data_fields:
+          'hr_average,hr_min,hr_max,sleep_efficiency,sleep_latency,total_sleep_time,sleep_score',
+        lastupdate: 0,
+      }
+
+      //do it in a loop, while there are more sleep summaries
+      const sleepSummaries: any[] = []
+
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const sleepSummaryResponse = await axios.post(sleepRequestUrl, sleepSummaryData, {
+          headers,
+        })
+        if (sleepSummaryResponse.data.body.more === false) {
+          sleepSummaries.push(...sleepSummaryResponse.data.body.series)
+          break
+        }
+        sleepSummaries.push(...sleepSummaryResponse.data.body.series)
+        sleepSummaryData.lastupdate =
+          sleepSummaryResponse.data.body.series[
+            sleepSummaryResponse.data.body.series.length - 1
+          ].startdate
+      }
+
+      if (sleepSummaries.length > 0) {
+        // create new measurements for user
+        sleepSummaries.forEach(async (sleepSummary: any) => {
+          await PatientSleepSummary.updateOrCreate(
+            { patientId: userId, startdate: startdate },
+            {
+              patientId: userId,
+              startdate: sleepSummary.startdate,
+              enddate: sleepSummary.enddate,
+              hrAverage: sleepSummary.data.hr_average,
+              hrMin: sleepSummary.data.hr_min,
+              hrMax: sleepSummary.data.hr_max,
+              sleepEfficiency: sleepSummary.data.sleep_efficiency,
+              sleepLatency: sleepSummary.data.sleep_latency,
+              totalSleepTime: sleepSummary.data.total_sleep_time,
+              sleepScore: sleepSummary.data.sleep_score,
+            }
+          )
         })
       }
 
