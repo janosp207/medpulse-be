@@ -2,6 +2,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Patient from 'App/Models/Patient'
 import PatientActivity from 'App/Models/PatientActivity'
 import PatientMeasurement from 'App/Models/PatientMeasurement'
+import PatientSleepSummary from 'App/Models/PatientSleepSummary'
 import PatientsBloodOxygen from 'App/Models/PatientsBloodOxygen'
 import PatientsBloodPressure from 'App/Models/PatientsBloodPressure'
 import { MeasurementType } from 'App/enums'
@@ -118,6 +119,21 @@ export default class PatientsController {
       .orderBy('date', 'desc')
       .first()
 
+    //get latest sleep summary
+
+    const latestSleepSummary = await PatientSleepSummary.query()
+      .select(
+        'startdate',
+        'enddate',
+        'sleep_score',
+        'total_sleep_time',
+        'sleep_efficiency',
+        'hr_average'
+      )
+      .where('patient_id', userId)
+      .orderBy('startdate', 'desc')
+      .first()
+
     return response.status(200).json({
       body: {
         latestActivity,
@@ -126,6 +142,7 @@ export default class PatientsController {
         latestWeight,
         latestFatRatio,
         bmi,
+        latestSleepSummary,
       },
     })
   }

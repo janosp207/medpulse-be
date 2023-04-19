@@ -23,14 +23,6 @@ export default class PatientsBloodOxygensController {
     }
   }
 
-  public async create({}: HttpContextContract) {
-    return 'Hello World!'
-  }
-
-  public async store({}: HttpContextContract) {
-    return 'Hello World!'
-  }
-
   public async show({ session, request, response }: HttpContextContract) {
     let sleepLogId = request.param('sleepId')
     if (request.param('id')) {
@@ -62,17 +54,5 @@ export default class PatientsBloodOxygensController {
 
       return response.status(200).json(sleepStates.rows)
     }
-  }
-
-  public async edit({}: HttpContextContract) {
-    return 'Hello World!'
-  }
-
-  public async update({}: HttpContextContract) {
-    return 'Hello World!'
-  }
-
-  public async destroy({}: HttpContextContract) {
-    return 'Hello World!'
   }
 }
