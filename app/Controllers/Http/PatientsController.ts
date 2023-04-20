@@ -77,7 +77,7 @@ export default class PatientsController {
     const latestBloodPressure = {
       systolic: bloodPressureResponse?.systolic,
       diastolic: bloodPressureResponse?.diastolic,
-      createdAt: bloodPressureResponse?.createdAt,
+      created_at: bloodPressureResponse?.createdAt,
     }
 
     const bloodOxygenResponse = await PatientsBloodOxygen.query()
