@@ -34,6 +34,8 @@ Route.get('/api/sync/activity', 'WithingsController.syncActivity')
 Route.post('/api/bloodpressure', 'PatientsBloodPressuresController.store')
 Route.post('/api/bloodoxygen', 'PatientsBloodOxygensController.store')
 
+Route.get('/api/patients/:id/bloodpressure', 'PatientsBloodPressuresController.index')
+
 //get latest data
 Route.get('/api/latestdata', 'PatientsController.getLatestData')
 

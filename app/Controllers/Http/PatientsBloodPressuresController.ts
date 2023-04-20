@@ -2,8 +2,25 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import PatientsBloodPressure from 'App/Models/PatientsBloodPressure'
 
 export default class PatientsBloodPressuresController {
-  public async index({}: HttpContextContract) {
-    return 'Hello World!'
+  public async index({ session, request, response }: HttpContextContract) {
+    if (request.param('id')) {
+      session.put('userid', request.param('id'))
+    }
+
+    const patientId = session.get('userid')
+
+    if (!patientId) {
+      return response.status(404).send('Patient not found')
+    }
+
+    if (patientId) {
+      //get all sleep logs for user
+      const bloodPressures = await PatientsBloodPressure.query()
+        .where('patient_id', patientId)
+        .orderBy('created_at', 'asc')
+
+      return response.status(200).json(bloodPressures)
+    }
   }
 
   public async create({}: HttpContextContract) {

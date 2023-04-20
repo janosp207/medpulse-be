@@ -152,6 +152,8 @@ export default class WithingsController {
         })
       }
 
+      console.log('activity synced successfully')
+
       //sync measurements
       const measureUrl = 'https://wbsapi.withings.net/measure'
       lastupdate = 0
@@ -196,6 +198,7 @@ export default class WithingsController {
           })
         })
       }
+      console.log('measurements synced successfully')
 
       const { startdate, enddate } = getSleepTimeStamps()
 
@@ -220,17 +223,17 @@ export default class WithingsController {
           sleepResponse.data.body.series[sleepResponse.data.body.series.length - 1].enddate
       }
 
-      //create sleep log, use starttime of first sleep state as date and endtime of last sleep state as enddate from sleepresponsedata
-      const sleepLog = await PatientSleepLog.updateOrCreate(
-        { patientId: userId, startdate: sleepResponseData[0].startdate },
-        {
-          patientId: userId,
-          startdate: sleepResponseData[0].startdate,
-          enddate: sleepResponseData[sleepResponseData.length - 1].enddate,
-        }
-      )
-
       if (sleepResponseData.length > 0) {
+        //create sleep log, use starttime of first sleep state as date and endtime of last sleep state as enddate from sleepresponsedata
+        const sleepLog = await PatientSleepLog.updateOrCreate(
+          { patientId: userId, startdate: sleepResponseData[0].startdate },
+          {
+            patientId: userId,
+            startdate: sleepResponseData[0].startdate,
+            enddate: sleepResponseData[sleepResponseData.length - 1].enddate,
+          }
+        )
+
         // create new measurements for user
         sleepResponseData.forEach(async (sleep: any) => {
           const { startdate, enddate, state, hr } = sleep
@@ -259,6 +262,8 @@ export default class WithingsController {
           }
         })
       }
+
+      console.log('sleep logs synced successfully')
 
       let latestSleepSummary = await PatientSleepSummary.query()
         .where('patient_id', userId)
@@ -319,7 +324,8 @@ export default class WithingsController {
         })
       }
 
-      console.log('Activity synced successfully')
+      console.log('sleep summary synced successfully')
+      console.log('syncing withings data completed successfully')
       return response.status(200).send('Activity synced successfully')
     } catch (error) {
       response.status(500).send('Error fetching data from Withings API')
