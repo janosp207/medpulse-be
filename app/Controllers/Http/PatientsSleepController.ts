@@ -1,6 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Database from '@ioc:Adonis/Lucid/Database'
 import PatientSleepLog from 'App/Models/PatientSleepLog'
+import PatientSleepSummary from 'App/Models/PatientSleepSummary'
 export default class PatientsBloodOxygensController {
   public async index({ session, request, response }: HttpContextContract) {
     if (request.param('id')) {
@@ -52,7 +53,17 @@ export default class PatientsBloodOxygensController {
         [sleepLogId]
       )
 
-      return response.status(200).json(sleepStates.rows)
+      if (sleepStates.rows.length > 0) {
+        //find in sleepsummaries where startdate and enddate match
+        const sleepSummary = await PatientSleepSummary.query()
+          .where('patient_id', patientId)
+          .where('startdate', sleepStates.rows[0].startdate)
+          .where('enddate', sleepStates.rows[sleepStates.rows.length - 1].enddate)
+          .first()
+
+        return response.status(200).json({ sleepStates: sleepStates.rows, sleepSummary })
+      }
+      return response.status(200).json({ sleepStates: sleepStates.rows })
     }
   }
 }
