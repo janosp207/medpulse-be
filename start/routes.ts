@@ -35,6 +35,7 @@ Route.post('/api/bloodpressure', 'PatientsBloodPressuresController.store')
 Route.post('/api/bloodoxygen', 'PatientsBloodOxygensController.store')
 
 Route.get('/api/patients/:id/bloodpressure', 'PatientsBloodPressuresController.index')
+Route.get('/api/patients/:id/bloodoxygen', 'PatientsBloodOxygensController.index')
 
 //get latest data
 Route.get('/api/latestdata', 'PatientsController.getLatestData')
