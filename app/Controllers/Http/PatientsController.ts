@@ -89,9 +89,24 @@ export default class PatientsController {
       isTrendWarning: false,
     }
 
+    //hypoxemia
+    const hypoxemiaCount = await PatientsBloodOxygen.query()
+      .where('patient_id', userId)
+      .where('blood_oxygen', '<=', limits.bloodOxygenMin/100)
+      .whereBetween('created_at', [startDate, enddate])
+      .count('*')
+      .first()
+
+    const hypoxemiaWarning = {
+      type: 'hypoxemia',
+      value: hypoxemiaCount?.$extras.count || 0,
+      isTrendWarning: false,
+    }
+
     warnings.push(weightWarning)
     warnings.push(hypotensionWarning)
     warnings.push(hypertensionWarning)
+    warnings.push(hypoxemiaWarning)
 
     return response.status(200).json(warnings)
   }
