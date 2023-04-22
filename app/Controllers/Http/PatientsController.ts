@@ -54,12 +54,44 @@ export default class PatientsController {
     const weightWarning = {
       type: 'weight',
       value: latestWeight?.value,
-      messages: [] as string[],
       slope: calculateSlope(weights.map((weight) => weight.value)),
       isWithinLimits: latestWeight?.value <= limits?.weight,
     }
 
+    //check how many times did patient suffer hypotension
+    const hypotensionCount = await PatientsBloodPressure.query()
+      .where('patient_id', userId)
+      .where('systolic', '<=', limits.systolicMin)
+      .orWhere('diastolic', '<=', limits.diastolicMin)
+      .whereBetween('created_at', [startDate, enddate])
+      .count('*')
+      .first()
+
+    console.log(hypotensionCount)
+    const hypotensionWarning = {
+      type: 'hypotension',
+      value: hypotensionCount?.$extras.count || 0,
+      isTrendWarning: false,
+    }
+
+    //same for hypertension
+    const hypertensionCount = await PatientsBloodPressure.query()
+      .where('patient_id', userId)
+      .where('systolic', '>=', limits.systolicMax)
+      .orWhere('diastolic', '>=', limits.diastolicMax)
+      .whereBetween('created_at', [startDate, enddate])
+      .count('*')
+      .first()
+
+    const hypertensionWarning = {
+      type: 'hypertension',
+      value: hypertensionCount?.$extras.count || 0,
+      isTrendWarning: false,
+    }
+
     warnings.push(weightWarning)
+    warnings.push(hypotensionWarning)
+    warnings.push(hypertensionWarning)
 
     return response.status(200).json(warnings)
   }
