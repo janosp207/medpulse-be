@@ -1,11 +1,18 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Patient from 'App/Models/Patient'
 import PatientActivity from 'App/Models/PatientActivity'
+import PatientLimit from 'App/Models/PatientLimit'
 import PatientMeasurement from 'App/Models/PatientMeasurement'
 import PatientSleepSummary from 'App/Models/PatientSleepSummary'
 import PatientsBloodOxygen from 'App/Models/PatientsBloodOxygen'
 import PatientsBloodPressure from 'App/Models/PatientsBloodPressure'
 import { MeasurementType } from 'App/enums'
+import * as ss from 'simple-statistics'
+
+const calculateSlope = (values: number[]) => {
+  const { m: slope } = ss.linearRegression(values.map((d, i) => [i, d]))
+  return slope
+}
 
 export default class PatientsController {
   public async index({ response }: HttpContextContract) {
@@ -15,12 +22,46 @@ export default class PatientsController {
     return response.status(200).json(patients)
   }
 
-  public async create({}: HttpContextContract) {
-    return 'Hello World!'
-  }
+  public async warnings({ session, request, response }: HttpContextContract) {
+    if (request.param('id')) {
+      session.put('userid', request.param('id'))
+    }
 
-  public async store({}: HttpContextContract) {
-    return 'Hello World!'
+    const userId = session.get('userid')
+
+    const limits = await PatientLimit.query().where('patient_id', userId).first()
+
+    const startDate = new Date()
+    startDate.setMonth(startDate.getMonth() - 1)
+    const enddate = new Date()
+
+    const startTime = Math.floor(startDate.getTime() / 1000)
+    const endTime = Math.floor(enddate.getTime() / 1000)
+
+    const warnings = [] as any
+
+    const weights = await PatientMeasurement.query()
+      .where('patient_id', userId)
+      .where('type', MeasurementType.Weight)
+      .whereBetween('date', [startTime, endTime])
+      .orderBy('date', 'asc')
+    const latestWeight = weights[weights.length - 1]
+
+    if (!limits) {
+      return response.status(400).json({ message: 'Limits not set' })
+    }
+
+    const weightWarning = {
+      type: 'weight',
+      value: latestWeight?.value,
+      messages: [] as string[],
+      slope: calculateSlope(weights.map((weight) => weight.value)),
+      isWithinLimits: latestWeight?.value <= limits?.weight,
+    }
+
+    warnings.push(weightWarning)
+
+    return response.status(200).json(warnings)
   }
 
   public async show({ request, response }: HttpContextContract) {
