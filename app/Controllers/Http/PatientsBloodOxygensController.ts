@@ -12,7 +12,16 @@ export default class PatientsBloodOxygensController {
       .where('patient_id', patientId)
       .orderBy('created_at', 'asc')
 
-    return response.status(200).json(bloodOxygen)
+    //const formatted blood oxygen
+    const formattedBloodOxygen = bloodOxygen.map((bloodOxygen) => {
+      return {
+        id: bloodOxygen.id,
+        bloodOxygen: bloodOxygen.bloodOxygen,
+        createdAt: bloodOxygen.createdAt,
+      }
+    })
+
+    return response.status(200).json(formattedBloodOxygen)
   }
 
   public async create({}: HttpContextContract) {
