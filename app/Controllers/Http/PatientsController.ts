@@ -67,7 +67,6 @@ export default class PatientsController {
       .count('*')
       .first()
 
-    console.log(hypotensionCount)
     const hypotensionWarning = {
       type: 'hypotension',
       value: hypotensionCount?.$extras.count || 0,
@@ -92,7 +91,7 @@ export default class PatientsController {
     //hypoxemia
     const hypoxemiaCount = await PatientsBloodOxygen.query()
       .where('patient_id', userId)
-      .where('blood_oxygen', '<=', limits.bloodOxygenMin/100)
+      .where('blood_oxygen', '<=', limits.bloodOxygenMin / 100)
       .whereBetween('created_at', [startDate, enddate])
       .count('*')
       .first()
