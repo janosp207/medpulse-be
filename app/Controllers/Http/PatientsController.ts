@@ -55,7 +55,8 @@ export default class PatientsController {
       type: 'weight',
       value: latestWeight?.value,
       slope: calculateSlope(weights.map((weight) => weight.value)),
-      isWithinLimits: latestWeight?.value <= limits?.weight && latestWeight?.value >= limits?.weightMin,
+      isWithinLimits:
+        latestWeight?.value <= limits?.weight && latestWeight?.value >= limits?.weightMin,
     }
 
     //check how many times did patient suffer hypotension
@@ -100,6 +101,28 @@ export default class PatientsController {
       type: 'hypoxemia',
       value: hypoxemiaCount?.$extras.count || 0,
       isTrendWarning: false,
+    }
+
+    const sixMonthsAgo = new Date()
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+
+    const sixMonthsAgoTime = Math.floor(sixMonthsAgo.getTime() / 1000)
+
+    const weightsSixMonthsAgo = await PatientMeasurement.query()
+      .where('patient_id', userId)
+      .where('type', MeasurementType.Weight)
+      .whereBetween('date', [sixMonthsAgoTime, endTime])
+      .orderBy('date', 'asc')
+
+    const weightLoss = (weightsSixMonthsAgo[0].value - latestWeight.value) / latestWeight.value
+
+    if (weightLoss > 0.04) {
+      warnings.push({
+        type: 'cachexia',
+        value: weightLoss,
+        isTrendWarning: false,
+        text: 'Indication of cachexia!',
+      })
     }
 
     warnings.push(weightWarning)
