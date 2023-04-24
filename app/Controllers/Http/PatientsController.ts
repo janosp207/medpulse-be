@@ -55,7 +55,7 @@ export default class PatientsController {
       type: 'weight',
       value: latestWeight?.value,
       slope: calculateSlope(weights.map((weight) => weight.value)),
-      isWithinLimits: latestWeight?.value <= limits?.weight,
+      isWithinLimits: latestWeight?.value <= limits?.weight && latestWeight?.value >= limits?.weightMin,
     }
 
     //check how many times did patient suffer hypotension
