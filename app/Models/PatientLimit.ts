@@ -12,6 +12,9 @@ export default class PatientLimit extends BaseModel {
   public weight: number
 
   @column()
+  public weightMin: number
+
+  @column()
   public fatRatio: number
 
   @column()

@@ -14,6 +14,7 @@ export default class PatientsBloodPressuresController {
 
       const responseData = {
         weight: limitValues?.weight,
+        weightMin: limitValues?.weightMin,
         fatRatio: limitValues?.fatRatio,
         bmi: limitValues?.bmi,
         diastolicMax: limitValues?.diastolicMax,
