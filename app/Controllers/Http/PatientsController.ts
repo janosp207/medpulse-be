@@ -116,6 +116,7 @@ export default class PatientsController {
 
     const weightLoss = (weightsSixMonthsAgo[0].value - latestWeight.value) / latestWeight.value
 
+    //cachexia
     if (weightLoss > 0.04) {
       warnings.push({
         type: 'cachexia',
