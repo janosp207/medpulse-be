@@ -41,6 +41,7 @@ Route.get('/api/patients/:id/bloodoxygen', 'PatientsBloodOxygensController.index
 Route.get('/api/latestdata', 'PatientsController.getLatestData')
 Route.get('/api/warnings', 'PatientsController.warnings')
 Route.get('/api/limitvalues', 'PatientsLimitsController.index')
+Route.get('/api/measurements/:type', 'PatientsMeasurementsController.index')
 
 //doctors
 Route.get('/api/patients', 'PatientsController.index')
