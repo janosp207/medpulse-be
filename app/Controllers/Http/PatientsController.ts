@@ -270,6 +270,13 @@ export default class PatientsController {
       .orderBy('startdate', 'desc')
       .first()
 
+    //get date when the user last logged wellness
+    const latestWellness = await PatientWellnessRating.query()
+      .select('created_at')
+      .where('patient_id', userId)
+      .orderBy('created_at', 'desc')
+      .first()
+
     return response.status(200).json({
       body: {
         latestActivity,
@@ -279,6 +286,7 @@ export default class PatientsController {
         latestFatRatio,
         bmi,
         latestSleepSummary,
+        latestWellness,
       },
     })
   }
