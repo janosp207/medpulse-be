@@ -34,14 +34,13 @@ Route.get('/api/sync/activity', 'WithingsController.syncActivity')
 Route.post('/api/bloodpressure', 'PatientsBloodPressuresController.store')
 Route.post('/api/bloodoxygen', 'PatientsBloodOxygensController.store')
 
-Route.get('/api/patients/:id/bloodpressure', 'PatientsBloodPressuresController.index')
-Route.get('/api/patients/:id/bloodoxygen', 'PatientsBloodOxygensController.index')
-
 //Patients
 Route.get('/api/latestdata', 'PatientsController.getLatestData')
 Route.get('/api/warnings', 'PatientsController.warnings')
 Route.get('/api/limitvalues', 'PatientsLimitsController.index')
 Route.get('/api/measurements/:type', 'PatientsMeasurementsController.index')
+
+Route.get('/api/bloodoxygen', 'PatientsBloodOxygensController.index')
 
 //doctors
 Route.get('/api/patients', 'PatientsController.index')
@@ -54,3 +53,6 @@ Route.get('/api/patients/:id/warnings', 'PatientsController.warnings')
 Route.get('/api/patients/:id/measurements/:type', 'PatientsMeasurementsController.index')
 Route.get('/api/patients/:id/sleep', 'PatientsSleepController.index')
 Route.get('/api/patients/:id/sleep/:sleepId', 'PatientsSleepController.show')
+
+Route.get('/api/patients/:id/bloodpressure', 'PatientsBloodPressuresController.index')
+Route.get('/api/patients/:id/bloodoxygen', 'PatientsBloodOxygensController.index')
