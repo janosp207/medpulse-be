@@ -127,10 +127,47 @@ export default class PatientsController {
       })
     }
 
+    //sleep apnea
+    const sleepSummaries = await PatientSleepSummary.query()
+      .select('patient_id', 'startdate', 'ahi')
+      .where('patient_id', userId)
+      .whereBetween('startdate', [startTime, endTime])
+      .orderBy('startdate', 'asc')
+
+    const moderateAppneasCount = sleepSummaries.filter(
+      (summary) => summary.ahi >= 15 && summary.ahi < 30
+    ).length
+    const severeAppneasCount = sleepSummaries.filter((summary) => summary.ahi >= 30).length
+    const mildAppneasCount = sleepSummaries.filter(
+      (summary) => summary.ahi >= 5 && summary.ahi < 15
+    ).length
+
+    let value = 0
+    let text = ''
+
+    if (severeAppneasCount > 0) {
+      value = severeAppneasCount
+      text = 'Severe sleep apnea!'
+    } else if (moderateAppneasCount > 0) {
+      value = moderateAppneasCount
+      text = 'Moderate sleep apnea!'
+    } else if (mildAppneasCount > 0) {
+      value = mildAppneasCount
+      text = 'Mild sleep apnea!'
+    }
+
+    const sleepApneaWarning = {
+      type: 'sleep apnea',
+      value: value,
+      isTrendWarning: false,
+      text: text,
+    }
+
     warnings.push(weightWarning)
     warnings.push(hypotensionWarning)
     warnings.push(hypertensionWarning)
     warnings.push(hypoxemiaWarning)
+    warnings.push(sleepApneaWarning)
 
     return response.status(200).json(warnings)
   }
