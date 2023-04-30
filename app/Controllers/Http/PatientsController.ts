@@ -19,14 +19,23 @@ const calculateVariance = (values: number[]) => {
   return ss.variance(values)
 }
 
-const getWellnesTextFromVariance = (variance: number) => {
+const getWellnesTextFromVariance = (variance: number, median: number) => {
+  let medianText = ''
+  if (median < 3) {
+    medianText = 'Low wellness. '
+  } else if (median < 4) {
+    medianText = 'Medium wellness. '
+  } else {
+    medianText = 'High wellness. '
+  }
+
   if (variance < 0.5) {
-    return 'Stable and consistent symptoms.'
+    return medianText + 'Stable and consistent symptoms.'
   }
   if (variance < 1.5) {
-    return 'Fluctuating symptoms, under control.'
+    return median + 'Fluctuating symptoms, under control.'
   }
-  return 'Highly variable and unstable symptoms, may need further attention.'
+  return median + 'Highly variable and unstable symptoms, may need further attention.'
 }
 
 const calculateSleepApneaStdDev = (values: number[]) => {
@@ -195,12 +204,15 @@ export default class PatientsController {
     const variance = calculateVariance(
       wellness.map((wellness) => (wellness.rating + wellness.overallRating) / 2)
     )
+    const median = ss.median(
+      wellness.map((wellness) => (wellness.rating + wellness.overallRating) / 2)
+    )
 
     const wellnessWarning = {
       type: 'wellness',
-      value: variance,
+      value: median,
       isTrendWarning: false,
-      text: getWellnesTextFromVariance(variance),
+      text: getWellnesTextFromVariance(variance, median),
     }
 
     warnings.push(weightWarning)
