@@ -280,7 +280,7 @@ export default class WithingsController {
       const sleepSummaryData = {
         action: 'getsummary',
         data_fields:
-          'hr_average,hr_min,hr_max,sleep_efficiency,sleep_latency,total_sleep_time,sleep_score,rr_avarage',
+          'hr_average,hr_min,hr_max,sleep_efficiency,sleep_latency,total_sleep_time,sleep_score,apnea_hypopnea_index',
         lastupdate: lastupdate,
       }
 
@@ -319,6 +319,7 @@ export default class WithingsController {
               sleepLatency: sleepSummary.data.sleep_latency,
               totalSleepTime: sleepSummary.data.total_sleep_time,
               sleepScore: sleepSummary.data.sleep_score,
+              ahi: sleepSummary.data.apnea_hypopnea_index || 0,
             }
           )
         })

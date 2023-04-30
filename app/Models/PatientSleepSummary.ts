@@ -35,6 +35,9 @@ export default class PatientSleepSummary extends BaseModel {
   @column()
   public hrMax: number
 
+  @column()
+  public ahi: number
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
