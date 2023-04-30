@@ -225,30 +225,6 @@ export default class PatientsController {
     return response.status(200).json(warnings)
   }
 
-  public async wellness({ session, request, response }: HttpContextContract) {
-    if (request.param('id')) {
-      session.put('userid', request.param('id'))
-    }
-
-    //just log the 1 to 5 values from request to database
-    const userId = session.get('userid')
-
-    //get "rating" and "overall_rating" from request
-    const { rating, overallRating } = request.all()
-
-    //create new wellness entry
-    const wellness = new PatientWellnessRating()
-    wellness.patientId = userId
-    wellness.rating = rating
-    wellness.overallRating = overallRating
-
-    await wellness.save()
-
-    console.log(rating)
-
-    return response.status(200).json({ message: 'Wellness saved' })
-  }
-
   public async show({ request, response }: HttpContextContract) {
     // only get name and id of patient
     try {

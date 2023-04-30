@@ -42,7 +42,7 @@ Route.get('/api/measurements/:type', 'PatientsMeasurementsController.index')
 
 Route.get('/api/bloodoxygen', 'PatientsBloodOxygensController.index')
 Route.get('/api/bloodpressure', 'PatientsBloodPressuresController.index')
-Route.post('/api/wellness', 'PatientsController.wellness')
+Route.post('/api/wellness', 'PatientWellnessRatingsController.store')
 
 //doctors
 Route.get('/api/patients', 'PatientsController.index')
@@ -59,3 +59,4 @@ Route.get('/api/patients/:id/sleep/:sleepId', 'PatientsSleepController.show')
 
 Route.get('/api/patients/:id/bloodpressure', 'PatientsBloodPressuresController.index')
 Route.get('/api/patients/:id/bloodoxygen', 'PatientsBloodOxygensController.index')
+Route.get('/api/patients/:id/wellness', 'PatientWellnessRatingsController.index')
