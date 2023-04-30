@@ -29,6 +29,34 @@ const getWellnesTextFromVariance = (variance: number) => {
   return 'Highly variable and unstable symptoms, may need further attention.'
 }
 
+const calculateSleepApneaStdDev = (values: number[]) => {
+  return ss.standardDeviation(values)
+}
+
+const getSleepApneaTextFromStdDev = (vals: number[]) => {
+  const stdDev = calculateSleepApneaStdDev(vals)
+  let multiplier = 1
+  const avarage = ss.mean(vals)
+
+  if (stdDev > 15) {
+    multiplier = 0.8
+  }
+  if (stdDev > 30) {
+    multiplier = 0.5
+  }
+
+  if (avarage < 5 * multiplier) {
+    return 'No sleep apnea.'
+  }
+  if (stdDev < 15 * multiplier) {
+    return 'Mild sleep apnea.'
+  }
+  if (stdDev < 30 * multiplier) {
+    return 'Moderate sleep apnea.'
+  }
+  return 'Severe sleep apnea.'
+}
+
 export default class PatientsController {
   public async index({ response }: HttpContextContract) {
     //return id and name of all patients
@@ -148,33 +176,13 @@ export default class PatientsController {
       .whereBetween('startdate', [startTime, endTime])
       .orderBy('startdate', 'asc')
 
-    const moderateAppneasCount = sleepSummaries.filter(
-      (summary) => summary.ahi >= 15 && summary.ahi < 30
-    ).length
-    const severeAppneasCount = sleepSummaries.filter((summary) => summary.ahi >= 30).length
-    const mildAppneasCount = sleepSummaries.filter(
-      (summary) => summary.ahi >= 5 && summary.ahi < 15
-    ).length
-
-    let value = 0
-    let text = ''
-
-    if (severeAppneasCount > 0) {
-      value = severeAppneasCount
-      text = 'Severe sleep apnea!'
-    } else if (moderateAppneasCount > 0) {
-      value = moderateAppneasCount
-      text = 'Moderate sleep apnea!'
-    } else if (mildAppneasCount > 0) {
-      value = mildAppneasCount
-      text = 'Mild sleep apnea!'
-    }
+    const ahi = sleepSummaries.map((summary) => summary.ahi)
 
     const sleepApneaWarning = {
       type: 'sleep apnea',
-      value: value,
       isTrendWarning: false,
-      text: text,
+      value: ss.standardDeviation(ahi),
+      text: getSleepApneaTextFromStdDev(ahi),
     }
 
     // wellness check
