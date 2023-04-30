@@ -38,10 +38,10 @@ const getSleepApneaTextFromStdDev = (vals: number[]) => {
   let multiplier = 1
   const avarage = ss.mean(vals)
 
-  if (stdDev > 15) {
+  if (stdDev > 10) {
     multiplier = 0.8
   }
-  if (stdDev > 30) {
+  if (stdDev > 20) {
     multiplier = 0.5
   }
 
