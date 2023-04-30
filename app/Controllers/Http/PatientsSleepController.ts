@@ -57,8 +57,10 @@ export default class PatientsBloodOxygensController {
         //find in sleepsummaries where startdate and enddate match
         const sleepSummary = await PatientSleepSummary.query()
           .where('patient_id', patientId)
-          .where('startdate', sleepStates.rows[0].startdate)
-          .where('enddate', sleepStates.rows[sleepStates.rows.length - 1].enddate)
+          .whereBetween('startdate', [
+            sleepStates.rows[0].startdate,
+            sleepStates.rows[sleepStates.rows.length - 1].enddate,
+          ])
           .first()
 
         return response.status(200).json({ sleepStates: sleepStates.rows, sleepSummary })

@@ -280,8 +280,8 @@ export default class WithingsController {
       const sleepSummaryData = {
         action: 'getsummary',
         data_fields:
-          'hr_average,hr_min,hr_max,sleep_efficiency,sleep_latency,total_sleep_time,sleep_score',
-        lastupdate: 0,
+          'hr_average,hr_min,hr_max,sleep_efficiency,sleep_latency,total_sleep_time,sleep_score,rr_avarage',
+        lastupdate: lastupdate,
       }
 
       //do it in a loop, while there are more sleep summaries
@@ -307,7 +307,7 @@ export default class WithingsController {
         // create new measurements for user
         sleepSummaries.forEach(async (sleepSummary: any) => {
           await PatientSleepSummary.updateOrCreate(
-            { patientId: userId, startdate: startdate },
+            { patientId: userId, startdate: sleepSummary.startdate },
             {
               patientId: userId,
               startdate: sleepSummary.startdate,
