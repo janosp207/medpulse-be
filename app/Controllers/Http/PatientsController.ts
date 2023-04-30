@@ -263,16 +263,30 @@ export default class PatientsController {
     }
   }
 
-  public async edit({}: HttpContextContract) {
-    return 'Hello World!'
-  }
+  public async activity({ session, request, response }: HttpContextContract) {
+    if (request.param('id')) {
+      session.put('userid', request.param('id'))
+    }
 
-  public async update({}: HttpContextContract) {
-    return 'Hello World!'
-  }
+    const userId = session.get('userid')
 
-  public async destroy({}: HttpContextContract) {
-    return 'Hello World!'
+    //get patient activity from PatientActivity
+    const patientActivity = await PatientActivity.query()
+      .select('steps', 'distance', 'calories', 'date')
+      .where('patient_id', userId)
+      .orderBy('date', 'asc')
+
+    //create new object, replace "date" with "createdAt"
+    const formattedPatientActivity = patientActivity.map((activity) => {
+      return {
+        steps: activity.steps,
+        distance: activity.distance,
+        calories: activity.calories,
+        createdAt: activity.date,
+      }
+    })
+
+    return response.status(200).json(formattedPatientActivity)
   }
 
   public async getLatestData({ session, request, response }: HttpContextContract) {
