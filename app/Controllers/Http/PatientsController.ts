@@ -46,7 +46,7 @@ const getSleepApneaTextFromStdDev = (vals: number[]) => {
   }
 
   if (avarage < 5 * multiplier) {
-    return 'No sleep apnea.'
+    return 'Normal sleep apnea.'
   }
   if (stdDev < 15 * multiplier) {
     return 'Mild sleep apnea.'
