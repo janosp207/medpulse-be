@@ -20,7 +20,28 @@ export default class PatientsBloodOxygensController {
         .where('patient_id', patientId)
         .orderBy('startdate', 'asc')
 
-      return response.status(200).json(sleepLogs)
+      //find sleep summaries for the sleep logs based on startdate and enddate between sleep logs
+      const sleepSummaries = await PatientSleepSummary.query()
+        .where('patient_id', patientId)
+        .whereBetween('startdate', [
+          sleepLogs[0].startdate,
+          sleepLogs[sleepLogs.length - 1].enddate,
+        ])
+
+      //assign sleep summary to each sleep log
+      const formattedSleepLogs = sleepLogs.map((sleepLog) => {
+        return {
+          ...sleepLog.toJSON(),
+          sleepSummary: sleepSummaries.find(
+            (sleepSummary) =>
+              //where they intersect
+              sleepSummary.startdate >= sleepLog.startdate &&
+              sleepSummary.startdate <= sleepLog.enddate
+          ),
+        }
+      })
+
+      return response.status(200).json(formattedSleepLogs)
     }
   }
 

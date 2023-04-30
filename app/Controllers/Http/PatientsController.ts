@@ -15,6 +15,20 @@ const calculateSlope = (values: number[]) => {
   return slope
 }
 
+const calculateVariance = (values: number[]) => {
+  return ss.variance(values)
+}
+
+const getWellnesTextFromVariance = (variance: number) => {
+  if (variance < 0.5) {
+    return 'Stable and consistent symptoms.'
+  }
+  if (variance < 1.5) {
+    return 'Fluctuating symptoms, under control.'
+  }
+  return 'Highly variable and unstable symptoms, may need further attention.'
+}
+
 export default class PatientsController {
   public async index({ response }: HttpContextContract) {
     //return id and name of all patients
@@ -163,11 +177,30 @@ export default class PatientsController {
       text: text,
     }
 
+    // wellness check
+    const wellness = await PatientWellnessRating.query()
+      .where('patient_id', userId)
+      .whereBetween('created_at', [startDate, enddate])
+      .orderBy('created_at', 'asc')
+
+    //get variance from rating and overall rating
+    const variance = calculateVariance(
+      wellness.map((wellness) => (wellness.rating + wellness.overallRating) / 2)
+    )
+
+    const wellnessWarning = {
+      type: 'wellness',
+      value: variance,
+      isTrendWarning: false,
+      text: getWellnesTextFromVariance(variance),
+    }
+
     warnings.push(weightWarning)
     warnings.push(hypotensionWarning)
     warnings.push(hypertensionWarning)
     warnings.push(hypoxemiaWarning)
     warnings.push(sleepApneaWarning)
+    warnings.push(wellnessWarning)
 
     return response.status(200).json(warnings)
   }
