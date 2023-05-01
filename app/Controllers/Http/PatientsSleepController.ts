@@ -5,10 +5,10 @@ import PatientSleepSummary from 'App/Models/PatientSleepSummary'
 export default class PatientsBloodOxygensController {
   public async index({ session, request, response }: HttpContextContract) {
     if (request.param('id')) {
-      session.put('patientId', request.param('id'))
+      session.put('userid', request.param('id'))
     }
 
-    const patientId = session.get('patientId')
+    const patientId = session.get('userid')
 
     if (!patientId) {
       return response.status(404).send('Patient not found')

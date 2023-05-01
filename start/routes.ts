@@ -44,6 +44,7 @@ Route.get('/api/bloodoxygen', 'PatientsBloodOxygensController.index')
 Route.get('/api/bloodpressure', 'PatientsBloodPressuresController.index')
 Route.post('/api/wellness', 'PatientWellnessRatingsController.store')
 Route.get('/api/activity', 'PatientsController.activity')
+Route.get('/api/sleep', 'PatientsSleepController.index')
 
 //doctors
 Route.get('/api/patients', 'PatientsController.index')
