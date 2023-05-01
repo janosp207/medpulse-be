@@ -5,11 +5,13 @@ export default class extends BaseSchema {
 
   public async up() {
     this.schema.table(this.tableName, (table) => {
-      table.integer('ahi')
+      table.float('ahi')
     })
   }
 
   public async down() {
-    this.schema.dropTable(this.tableName)
+    this.schema.table(this.tableName, (table) => {
+      table.dropColumn('ahi')
+    })
   }
 }
