@@ -270,6 +270,8 @@ export default class WithingsController {
         .orderBy('startdate', 'desc')
         .first()
 
+      lastupdate = 0
+
       if (latestSleepSummary) {
         const { startdate } = latestSleepSummary
 
