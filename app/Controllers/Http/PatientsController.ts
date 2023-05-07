@@ -83,6 +83,10 @@ export default class PatientsController {
 
     const limits = await PatientLimit.query().where('patient_id', userId).first()
 
+    if (!limits) {
+      return response.status(400).json({ message: 'Limits not set' })
+    }
+
     const startDate = new Date()
     startDate.setMonth(startDate.getMonth() - 1)
     const enddate = new Date()
@@ -98,10 +102,6 @@ export default class PatientsController {
       .whereBetween('date', [startTime, endTime])
       .orderBy('date', 'asc')
     const latestWeight = weights[weights.length - 1]
-
-    if (!limits) {
-      return response.status(400).json({ message: 'Limits not set' })
-    }
 
     const weightWarning = {
       type: 'weight',
@@ -185,13 +185,17 @@ export default class PatientsController {
       .whereBetween('startdate', [startTime, endTime])
       .orderBy('startdate', 'asc')
 
-    const ahi = sleepSummaries.map((summary) => summary.ahi)
+    if (sleepSummaries.length) {
+      const ahi = sleepSummaries.map((summary) => summary.ahi)
 
-    const sleepApneaWarning = {
-      type: 'sleep apnea',
-      isTrendWarning: false,
-      value: ss.standardDeviation(ahi),
-      text: getSleepApneaTextFromStdDev(ahi),
+      const sleepApneaWarning = {
+        type: 'sleep apnea',
+        isTrendWarning: false,
+        value: ss.standardDeviation(ahi),
+        text: getSleepApneaTextFromStdDev(ahi),
+      }
+
+      warnings.push(sleepApneaWarning)
     }
 
     // wellness check
@@ -201,26 +205,28 @@ export default class PatientsController {
       .orderBy('created_at', 'asc')
 
     //get variance from rating and overall rating
-    const variance = calculateVariance(
-      wellness.map((wellness) => (wellness.rating + wellness.overallRating) / 2)
-    )
-    const median = ss.median(
-      wellness.map((wellness) => (wellness.rating + wellness.overallRating) / 2)
-    )
+    if (wellness.length) {
+      const variance = calculateVariance(
+        wellness.map((wellness) => (wellness.rating + wellness.overallRating) / 2)
+      )
+      const median = ss.median(
+        wellness.map((wellness) => (wellness.rating + wellness.overallRating) / 2)
+      )
 
-    const wellnessWarning = {
-      type: 'wellness',
-      value: median,
-      isTrendWarning: false,
-      text: getWellnesTextFromVariance(variance, median),
+      const wellnessWarning = {
+        type: 'wellness',
+        value: median,
+        isTrendWarning: false,
+        text: getWellnesTextFromVariance(variance, median),
+      }
+
+      warnings.push(wellnessWarning)
     }
 
     warnings.push(weightWarning)
     warnings.push(hypotensionWarning)
     warnings.push(hypertensionWarning)
     warnings.push(hypoxemiaWarning)
-    warnings.push(sleepApneaWarning)
-    warnings.push(wellnessWarning)
 
     return response.status(200).json(warnings)
   }
