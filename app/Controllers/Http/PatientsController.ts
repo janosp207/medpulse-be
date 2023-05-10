@@ -114,9 +114,12 @@ export default class PatientsController {
     //check how many times did patient suffer hypotension
     const hypotensionCount = await PatientsBloodPressure.query()
       .where('patient_id', userId)
-      .where('systolic', '<=', limits.systolicMin)
-      .orWhere('diastolic', '<=', limits.diastolicMin)
       .whereBetween('created_at', [startDate, enddate])
+      .andWhere((builder) =>
+        builder
+          .where('systolic', '<=', limits.systolicMin)
+          .orWhere('diastolic', '<=', limits.diastolicMin)
+      )
       .count('*')
       .first()
 
@@ -129,9 +132,12 @@ export default class PatientsController {
     //same for hypertension
     const hypertensionCount = await PatientsBloodPressure.query()
       .where('patient_id', userId)
-      .where('systolic', '>=', limits.systolicMax)
-      .orWhere('diastolic', '>=', limits.diastolicMax)
       .whereBetween('created_at', [startDate, enddate])
+      .andWhere((builder) =>
+        builder
+          .where('systolic', '>=', limits.systolicMax)
+          .orWhere('diastolic', '>=', limits.diastolicMax)
+      )
       .count('*')
       .first()
 
