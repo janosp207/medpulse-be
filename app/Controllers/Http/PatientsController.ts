@@ -67,9 +67,11 @@ const getSleepApneaTextFromStdDev = (vals: number[]) => {
 }
 
 export default class PatientsController {
-  public async index({ response }: HttpContextContract) {
+  public async index({ session, response }: HttpContextContract) {
     //return id and name of all patients
-    const patients = await Patient.query().select('user_id', 'name', 'date_of_birth')
+    const patients = await Patient.query()
+      .where('doctor_id', session.get('doctorId'))
+      .select('user_id', 'name', 'date_of_birth')
 
     return response.status(200).json(patients)
   }

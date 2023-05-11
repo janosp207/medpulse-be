@@ -63,3 +63,6 @@ Route.get('/api/patients/:id/sleep/:sleepId', 'PatientsSleepController.show')
 Route.get('/api/patients/:id/bloodpressure', 'PatientsBloodPressuresController.index')
 Route.get('/api/patients/:id/bloodoxygen', 'PatientsBloodOxygensController.index')
 Route.get('/api/patients/:id/wellness', 'PatientWellnessRatingsController.index')
+
+//login
+Route.post('/api/doctors/login', 'DoctorsController.login')
