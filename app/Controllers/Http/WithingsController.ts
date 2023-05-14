@@ -44,7 +44,7 @@ export default class WithingsController {
         client_secret: Env.get('SECRET'),
         code,
         grant_type: 'authorization_code',
-        redirect_uri: 'http://localhost:3333/callback',
+        redirect_uri: 'https://bp-backend-q6tiqi67gq-ew.a.run.app/callback',
       }
 
       const apiResponse = await axios.post(url, data, { headers })
@@ -100,11 +100,14 @@ export default class WithingsController {
     }
   }
 
-  public async syncActivity({ session, response }: HttpContextContract) {
-    const token = session.get('accessToken')
-    const userId = session.get('userid')
+  public async syncActivity({ request, response }: HttpContextContract) {
+    const userId = request.param('id')
     const url = 'https://wbsapi.withings.net/v2/measure'
     let lastupdate = 0
+
+    //get token from database
+    const patient = await Patient.findBy('user_id', userId)
+    let token = patient?.access_token
 
     //check for latest user activity
     const latestActivity = await PatientActivity.query()

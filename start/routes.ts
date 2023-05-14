@@ -28,29 +28,18 @@ Route.post('/api/storeAccessToken', 'WithingsController.storeAccessTokenByUserId
 Route.get('/callback', 'WithingsController.callback')
 
 //syncing routes
-Route.get('/api/sync/activity', 'WithingsController.syncActivity')
+Route.get('/api/sync/activity/:id', 'WithingsController.syncActivity')
 
 //manual blood info logs
-Route.post('/api/bloodpressure', 'PatientsBloodPressuresController.store')
-Route.post('/api/bloodoxygen', 'PatientsBloodOxygensController.store')
+Route.post('/api/patients/:id/bloodpressure', 'PatientsBloodPressuresController.store')
+Route.post('/api/patients/:id/bloodoxygen', 'PatientsBloodOxygensController.store')
 
 //Patients
-Route.get('/api/latestdata', 'PatientsController.getLatestData')
-Route.get('/api/warnings', 'PatientsController.warnings')
-Route.get('/api/limitvalues', 'PatientsLimitsController.index')
-Route.get('/api/measurements/:type', 'PatientsMeasurementsController.index')
-
-Route.get('/api/bloodoxygen', 'PatientsBloodOxygensController.index')
-Route.get('/api/bloodpressure', 'PatientsBloodPressuresController.index')
-Route.post('/api/wellness', 'PatientWellnessRatingsController.store')
-Route.get('/api/activity', 'PatientsController.activity')
-Route.get('/api/sleep', 'PatientsSleepController.index')
-Route.get('/api/sleep/:sleepId', 'PatientsSleepController.show')
 
 //doctors
-Route.get('/api/patients', 'PatientsController.index')
+Route.get('/api/patients/:doctorId', 'PatientsController.index')
 Route.get('/api/patients/:id/latestdata', 'PatientsController.getLatestData')
-Route.get('/api/patients/:id', 'PatientsController.show')
+Route.get('/api/patients/show/:id', 'PatientsController.show')
 Route.get('/api/patients/:id/limitvalues', 'PatientsLimitsController.index')
 Route.post('/api/patients/:id/limitvalues', 'PatientsLimitsController.store')
 Route.get('/api/patients/:id/warnings', 'PatientsController.warnings')
